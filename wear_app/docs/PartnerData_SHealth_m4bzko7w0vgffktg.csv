@@ -1,0 +1,22 @@
+﻿Field,Value
+Product Name,SHealth
+Form Name,m4bzko7w0vgffktg
+Status,Approved
+Created Date,2026-05-07T14:50:20.738Z
+Company Information-Business Industries,"Academic Medical Centers,Care at Home,Fitness & Sports,Heart Health,Medical Devices"
+Company Information-Type of Business,Academic or Clinical Research
+Company Information-Estimated Global Revenue,"0, Non-Profitable"
+Application Information-Wear OS app | plan to build a Wear OS ap,We are building a Wear OS app or plan to build a Wear OS app
+Application Information-Default Application Name,Smart Health
+Application Information-App Description,"Wear OS app for the Samsung Galaxy Watch 5 that acts as a single-lead ECG and biosignal acquisition device for an academic graduation thesis at Future University in Egypt (FUE). The watch streams standard sensors continuously over the Wear OS Data Layer (heart rate, accelerometer, gyroscope, barometer, magnetometer, gravity, linear acceleration, step count) and 30-second on-demand ECG sessions on user request. A paired Android phone receives the data and runs a CNN trained on MIT-BIH for AAMI heartbeat classification (N/S/V/F). All ML runs on the phone; the watch performs no inference. Intended audience: a single user (the thesis developer) for research-grade demonstration only. Not for clinical or diagnostic use."
+Application Information-Purpose of SDK Use,"The Samsung Health Sensor SDK v1.4.1 is used solely to access the HealthTrackerType.ECG_ON_DEMAND tracker for capturing user-initiated 30-second single-lead ECG recordings at 500 Hz. The captured raw mV samples (with per-sample lead-off flags) are sent unprocessed over the Wear OS Data Layer to a paired Android phone, where preprocessing (bandpass + notch + resampling to 128 Hz) and a CNN classifier produce AAMI beat-level predictions for academic research. No other Samsung Health Sensor SDK trackers (PPG, BIA, SpO2, body composition, skin temperature) are required or used. No background ECG capture; sessions are exclusively user-button-triggered. Distribution is strictly non-commercial, single-device, single-user (the thesis developer), with no app-store publication and no third-party sharing. The app displays an explicit in-app disclaimer that recordings are not for medical diagnosis."
+Application Information-App Package Name,com.gradproject2026.ecgwatch
+Application Information-App Signature (SHA256),3E:6A:4C:B6:BB:2E:32:42:56:78:4F:2D:33:8D:72:D8:85:C8:E6:2D:7E:BF:0B:23:82:6E:9E:2A:92:7F:E1:DB-
+Application Information-Projected Launch Date,15.06.2026
+Application Information-On-demand Tracker Types,ECG (Raw electrocardiogram data)
+Application Information-Purpose of Each Data Type to License,"ECG (Raw electrocardiogram data) — Used exclusively via HealthTrackerType.ECG_ON_DEMAND for user-initiated 30-second single-lead recordings at 500 Hz. The user holds the watch's Home button to complete the Lead-I circuit; the app captures raw mV samples (with the SDK's LEAD_OFF flag per sample) and transmits them unmodified over the Wear OS Data Layer to a paired Android phone. On the phone, a CNN model (trained on the public MIT-BIH Arrhythmia Database) classifies individual heartbeats into the AAMI categories N, S, V, F. No on-device ML inference runs on the watch. No background or continuous ECG capture. No ECG data is uploaded to cloud services or shared with any third party; recordings exist only on the user's paired phone for the duration of the academic thesis demonstration. The app displays an explicit in-app disclaimer that the recordings are research output and are not for medical diagnosis. No other Samsung Health Sensor SDK trackers are used. Heart rate, accelerometer, gyroscope, gravity, magnetometer, linear acceleration, barometric pressure, and step count are accessed via the standard Android SensorManager API, NOT through the Samsung Health Sensor SDK, and are therefore not part of this license request."
+Application Information-Do you plan to offer this App in China?,No
+Data Security-Data be shared with third parties?,No
+Data Security-Comply with local privacy laws?,Yes
+Data Security-Experienced any past security breaches?,No
+Application Information-Upload Data Flow Diagram,/SHealth_Partner/cbnl35mxfh_1778165420012_flow-diagram.pdf

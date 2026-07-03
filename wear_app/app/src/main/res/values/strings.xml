@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">wear_app</string>
+    <string name="hello_world">Hello, %1$s!</string>
+    <string name="ecg_activity_label">Record ECG</string>
+    <string name="ecg_record_button">Record ECG</string>
+    <string name="ecg_status_idle">Tap Start, then hold finger\non the side button</string>
+    <string name="ecg_status_connecting">Connecting…</string>
+    <string name="ecg_status_recording">Recording — keep finger on Home button</string>
+    <string name="ecg_status_sending">Sending to phone…</string>
+    <string name="ecg_status_done">Done</string>
+    <string name="ecg_button_start">Start</string>
+    <string name="ecg_button_stop">Stop</string>
+
+    <string name="spo2_activity_label">Measure SpO2</string>
+    <string name="spo2_record_button">Measure SpO2</string>
+    <string name="spo2_status_idle">Tap Start, keep wrist\nflat and still</string>
+    <string name="spo2_status_connecting">Connecting…</string>
+    <string name="spo2_status_measuring">Measuring — hold still</string>
+    <string name="spo2_status_done">Done</string>
+    <string name="spo2_button_start">Start</string>
+    <string name="spo2_button_stop">Stop</string>
+</resources>

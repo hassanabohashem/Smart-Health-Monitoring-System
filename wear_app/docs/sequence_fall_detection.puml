@@ -1,0 +1,65 @@
+@startuml
+title Sequence Diagram - Fall Detection -> Caregiver Alert
+skinparam shadowing false
+skinparam dpi 200
+skinparam backgroundColor #FEFEFE
+skinparam sequence {
+    ArrowColor #444444
+    LifeLineBorderColor #6C8EBF
+    ParticipantBackgroundColor #DAE8FC
+    ParticipantBorderColor #6C8EBF
+    ActorBackgroundColor #DAE8FC
+    ActorBorderColor #6C8EBF
+    BoxBorderColor #888888
+}
+
+actor "Smartwatch\n(IMU+barometer)" as Sensor
+participant "WatchAppService\n(sensor buffer)" as Watch
+participant "AIService" as AI
+participant "AIModelRegistry" as Reg
+participant "FallDetectionAdapter\n(FusionNet)" as Adapter
+participant "OnnxRuntime" as ORT
+participant "AlertService" as Alerts
+database "Supabase\n(alerts table)" as DB
+participant "NotificationService" as Notif
+boundary "FCM" as FCM
+participant "Caregiver app" as CG_App
+actor Caregiver
+
+== Continuous sampling ==
+Sensor -> Watch : IMU + barometer samples (50 Hz)
+Watch -> Watch : buffer 2s window\n(100 samples)
+
+== Inference ==
+Watch -> AI : processSensorWindow(window)
+AI -> Reg : getByType('fall_detection')
+Reg --> AI : FallDetectionAdapter
+AI -> Adapter : predict(window)
+Adapter -> ORT : runOnnxSession('fusionnet-wrist', tensors)
+ORT --> Adapter : logits
+Adapter --> AI : { label:'fall', confidence:0.92 }
+
+alt confidence >= threshold
+    AI -> Watch : show countdown UI (10s "Cancel?")
+
+    alt user does NOT cancel
+        Watch --> AI : timeout
+        AI -> Alerts : createAlert(type='fall', wearer_id, confidence)
+        Alerts -> DB : INSERT alerts row
+        DB --> Alerts : alert_id
+        Alerts -> Notif : pushToCaregivers(wearer_id, alert)
+        Notif -> FCM : send(payload, caregiver_token)
+        FCM -> CG_App : push notification
+        CG_App -> Caregiver : show alert banner
+        Caregiver -> CG_App : tap notification
+        CG_App -> DB : SELECT alert details (realtime)
+        DB --> CG_App : alert + wearer location
+    else user cancels
+        Watch -> AI : cancel()
+        AI -> AI : discard prediction
+    end
+else low confidence
+    AI -> AI : ignore
+end
+
+@enduml

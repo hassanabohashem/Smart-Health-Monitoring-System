@@ -1,0 +1,72 @@
+@startuml
+title Sequence Diagram - Caregiver Linking (Invite -> Accept)
+skinparam shadowing false
+skinparam dpi 200
+skinparam backgroundColor #FEFEFE
+skinparam sequence {
+    ArrowColor #444444
+    LifeLineBorderColor #6C8EBF
+    ParticipantBackgroundColor #DAE8FC
+    ParticipantBorderColor #6C8EBF
+    ActorBackgroundColor #DAE8FC
+    ActorBorderColor #6C8EBF
+    BoxBorderColor #888888
+}
+
+actor Wearer
+participant "LinkScreen\n(Wearer UI)" as W_UI
+participant "LinkService" as Link
+database "Supabase\n(caregiver_links)" as DB
+participant "NotificationService" as Notif
+boundary "FCM" as FCM
+participant "CaregiverInbox\n(Caregiver UI)" as C_UI
+actor Caregiver
+
+== Invite ==
+Wearer -> W_UI : enter caregiver email
+W_UI -> Link : invite(email)
+Link -> DB : RPC get_user_id_by_email(email)
+DB --> Link : caregiver_id (or null)
+
+alt caregiver_id found
+    Link -> DB : INSERT caregiver_links\n(wearer_id, caregiver_id, status='pending')
+    DB --> Link : link_id
+    Link -> Notif : pushInvite(caregiver_id, wearer_name)
+    Notif -> FCM : send(payload, caregiver_token)
+    FCM -> C_UI : push "New care request"
+    Link --> W_UI : { ok, status:'pending' }
+    W_UI -> Wearer : show "Invitation sent"
+else email not registered
+    Link --> W_UI : error('email not found')
+    W_UI -> Wearer : show error
+end
+
+== Accept ==
+Caregiver -> C_UI : open inbox
+C_UI -> DB : SELECT pending links WHERE caregiver_id=me
+DB --> C_UI : [ link rows ]
+C_UI -> Caregiver : list pending invites
+
+Caregiver -> C_UI : tap "Accept"
+C_UI -> Link : accept(link_id)
+Link -> DB : UPDATE caregiver_links SET status='accepted'
+DB --> Link : ok
+
+Link -> Notif : notifyWearer(wearer_id, 'accepted')
+Notif -> FCM : send(payload, wearer_token)
+FCM -> W_UI : push "Caregiver accepted"
+
+DB -[#888888]-> W_UI : realtime: status=accepted
+DB -[#888888]-> C_UI : realtime: status=accepted
+
+W_UI -> Wearer : show "Linked"
+C_UI -> Caregiver : show "Now monitoring"
+
+== Decline (alternative) ==
+note over Caregiver, Link
+  Caregiver may instead tap "Decline":
+  LinkService.decline(link_id) -> UPDATE status='declined'
+  Wearer is notified via push + realtime.
+end note
+
+@enduml

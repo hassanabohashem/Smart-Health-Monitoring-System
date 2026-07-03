@@ -1,0 +1,148 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam shadowing false
+skinparam dpi 200
+skinparam usecase {
+    BackgroundColor #FEFECE
+    BorderColor #A80036
+}
+skinparam actor {
+    BackgroundColor #DAE8FC
+    BorderColor #6C8EBF
+}
+
+' --- Actors ---
+actor Wearer
+actor Caregiver
+actor Admin
+actor "Smartwatch\n(sensor source)" as Sensor
+
+' --- Use cases grouped into rectangles ---
+rectangle "Authentication & Profile" {
+    usecase "Register" as UC_A1
+    usecase "Log in" as UC_A2
+    usecase "Reset password" as UC_A3
+    usecase "Edit profile" as UC_A4
+    usecase "Edit medical profile" as UC_A5
+    usecase "Manage emergency contacts" as UC_A6
+    usecase "Toggle notifications" as UC_A7
+}
+
+rectangle "Linking" {
+    usecase "Invite caregiver by email" as UC_L1
+    usecase "Accept caregiver invitation" as UC_L2
+    usecase "Decline caregiver invitation" as UC_L3
+    usecase "Unlink caregiver" as UC_L4
+}
+
+rectangle "Vitals & Activity" {
+    usecase "View live vitals" as UC_V1
+    usecase "View 24h activity charts" as UC_V2
+    usecase "View weekly step chart" as UC_V3
+}
+
+rectangle "Alerts & Safety" {
+    usecase "Trigger SOS" as UC_S1
+    usecase "Confirm SOS" as UC_S2
+    usecase "Auto-detect fall" as UC_S3
+    usecase "Cancel fall alert" as UC_S4
+    usecase "Receive push notification" as UC_S5
+    usecase "View alert list" as UC_S6
+    usecase "Resolve alert" as UC_S7
+}
+
+rectangle "On-device AI" {
+    usecase "Run fall detection (FusionNet)" as UC_AI1
+    usecase "Run activity recognition (HAR)" as UC_AI2
+    usecase "Run cardiac classification" as UC_AI3
+}
+
+rectangle "Clinical Assistant" {
+    usecase "Open assistant chat" as UC_AS1
+    usecase "Ask health question" as UC_AS2
+    usecase "Auto-detect emergency" as UC_AS3
+    usecase "Receive response with citations" as UC_AS4
+    usecase "Rate response" as UC_AS5
+    usecase "Auto-escalate emergency" as UC_AS6
+}
+
+rectangle "Geofencing" {
+    usecase "Create safe zone" as UC_G1
+    usecase "Edit/delete safe zone" as UC_G2
+    usecase "Detect geofence breach" as UC_G3
+    usecase "Send geofence alert" as UC_G4
+}
+
+rectangle "Map" {
+    usecase "View live location" as UC_M1
+    usecase "View location history" as UC_M2
+}
+
+rectangle "Achievements" {
+    usecase "Unlock achievement" as UC_AC1
+    usecase "View achievements" as UC_AC2
+}
+
+' --- Wearer associations ---
+Wearer --> UC_A1
+Wearer --> UC_A2
+Wearer --> UC_A3
+Wearer --> UC_A4
+Wearer --> UC_A5
+Wearer --> UC_A6
+Wearer --> UC_A7
+Wearer --> UC_L1
+Wearer --> UC_L4
+Wearer --> UC_V1
+Wearer --> UC_V2
+Wearer --> UC_V3
+Wearer --> UC_S1
+Wearer --> UC_AS1
+Wearer --> UC_AS2
+Wearer --> UC_AS5
+Wearer --> UC_AC2
+
+' --- Caregiver associations ---
+Caregiver --> UC_A2
+Caregiver --> UC_A3
+Caregiver --> UC_A4
+Caregiver --> UC_A7
+Caregiver --> UC_L2
+Caregiver --> UC_L3
+Caregiver --> UC_L4
+Caregiver --> UC_V1
+Caregiver --> UC_V2
+Caregiver --> UC_S5
+Caregiver --> UC_S6
+Caregiver --> UC_S7
+Caregiver --> UC_AS1
+Caregiver --> UC_AS2
+Caregiver --> UC_AS5
+Caregiver --> UC_G1
+Caregiver --> UC_G2
+Caregiver --> UC_M1
+Caregiver --> UC_M2
+
+' --- Sensor source actor ---
+Sensor --> UC_AI1
+Sensor --> UC_AI2
+Sensor --> UC_AI3
+Sensor --> UC_G3
+Sensor --> UC_AC1
+
+' --- Include / extend relationships (ONLY UML stereotypes) ---
+UC_AI1 ..> UC_S3 : <<include>>
+UC_S1  ..> UC_S5 : <<include>>
+UC_S3  ..> UC_S5 : <<include>>
+UC_G3  ..> UC_G4 : <<include>>
+UC_G4  ..> UC_S5 : <<include>>
+UC_AS2 ..> UC_AS3 : <<include>>
+UC_AS6 ..> UC_S5 : <<include>>
+
+UC_S2  ..> UC_S1  : <<extend>>
+UC_S4  ..> UC_S3  : <<extend>>
+UC_AS6 ..> UC_AS3 : <<extend>>
+
+@enduml

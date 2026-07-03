@@ -1,0 +1,60 @@
+@startuml
+title Sequence Diagram - Clinical Assistant Q&A with Emergency Escalation
+skinparam shadowing false
+skinparam dpi 200
+skinparam backgroundColor #FEFEFE
+skinparam sequence {
+    ArrowColor #444444
+    LifeLineBorderColor #6C8EBF
+    ParticipantBackgroundColor #DAE8FC
+    ParticipantBorderColor #6C8EBF
+    ActorBackgroundColor #DAE8FC
+    ActorBorderColor #6C8EBF
+    BoxBorderColor #888888
+}
+
+actor Wearer
+participant "AssistantScreen\n(UI)" as UI
+participant "AssistantClient" as Client
+boundary "FastAPI\n(HF Spaces)" as API
+participant "EmergencyDetector\n(deterministic)" as ED
+boundary "Groq API\n(LLM)" as Groq
+participant "AlertService" as Alerts
+database "Supabase\n(alerts)" as DB
+participant "NotificationService" as Notif
+boundary "FCM" as FCM
+participant "Caregiver app" as CG_App
+actor Caregiver
+
+Wearer -> UI : type question + send
+UI -> Client : chat(question, context)
+Client -> API : POST /chat\n{question, context, jwt}
+
+API -> ED : detect(question)
+ED --> API : { emergency:true|false, flags }
+
+API -> Groq : completions(system + prompt)
+Groq --> API : answer + citations
+
+API --> Client : { response, citations, emergency }
+Client --> UI : render
+UI -> Wearer : show answer + citations
+
+opt emergency == true
+    Client -> Alerts : createAlert(type='assistant_emergency', wearer_id, snippet)
+    Alerts -> DB : INSERT alerts row
+    DB --> Alerts : alert_id
+    Alerts -> Notif : pushToCaregivers(wearer_id, alert)
+    Notif -> FCM : send(payload, caregiver_token)
+    FCM -> CG_App : push notification
+    CG_App -> Caregiver : show "emergency in chat"
+end
+
+opt user feedback
+    Wearer -> UI : tap thumbs up/down
+    UI -> Client : submitFeedback(rating, message_id)
+    Client -> API : POST /feedback
+    API --> Client : 200 OK
+end
+
+@enduml

@@ -1,0 +1,212 @@
+@startuml
+' Use strict UML notation so Association = thin open arrow,
+' Aggregation = hollow diamond, Composition = filled diamond
+' (otherwise PlantUML's default arrowhead is a rhombus that
+' looks identical to a composition diamond).
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam dpi 200
+skinparam backgroundColor #FEFEFE
+skinparam class {
+    BackgroundColor #DAE8FC
+    BorderColor #6C8EBF
+    ArrowColor #444444
+}
+skinparam interface {
+    BackgroundColor #FFF2CC
+    BorderColor #D6B656
+}
+skinparam package {
+    BorderColor #888888
+}
+
+' --------- AI core ---------
+package "src/services/ai" {
+
+    interface AIModelAdapter {
+        + id: string
+        + name: string
+        + type: ModelType
+        + version: string
+        + runtime: 'on-device'
+        + status: ModelStatus
+        + initialize(): Promise<void>
+        + predict(input): Promise<ModelPrediction>
+        + dispose(): Promise<void>
+    }
+
+    enum ModelType {
+        fall_detection
+        activity_recognition
+        cardiac_anomaly
+        health_assistant
+    }
+
+    enum ModelStatus {
+        active
+        loading
+        error
+        unavailable
+    }
+
+    class ModelPrediction <<type>> {
+        label: string
+        confidence: number
+        raw?: number[]
+        metadata?: object
+    }
+
+    class FallDetectionAdapter {
+        - sessionId: 'fusionnet-wrist'
+        + initialize()
+        + predict(input)
+    }
+    class FallDetectionSimulator {
+        + predict(input): heuristic
+    }
+
+    class HARAdapter {
+        - timeFeedName: 'time'
+        - freqFeedName: 'freq'
+        + initialize()
+        + predict(input): with rfft
+    }
+    class HARSimulator
+
+    class CardiacAdapter {
+        - sessionId: 'cardiac-beat-aami4'
+        + predict(input)
+    }
+    class CardiacSimulator
+
+    class AIModelRegistry <<singleton>> {
+        - models: Map<string, AIModelAdapter>
+        + register(adapter)
+        + getByType(type): AIModelAdapter[]
+        + getAll(): AIModelAdapter[]
+        + disposeAll()
+    }
+
+    class AIService <<module>> {
+        + initializeAI()
+        + processSensorWindow(input)
+        + processActivityWindow(input)
+        + processCardiacBeat(input)
+        + confirmFallAlert(...)
+        + getModelStatus()
+        + disposeAI()
+    }
+
+    class OnnxRuntime <<module>> {
+        + loadOnnxSession(opts)
+        + runOnnxSession(opts)
+    }
+}
+
+' --------- Supporting services ---------
+package "src/services" {
+    class AuthService
+    class AlertService
+    class LinkService
+    class LocationService
+    class GeofenceService
+    class NotificationService
+    class OfflineQueueService
+    class MockVitalsService
+    class AchievementService
+}
+
+' --------- Assistant namespace ---------
+package "src/services/assistant" {
+    class AssistantClient {
+        + chat(question, context)
+        + chatStream(question, context)
+        + analyzeVitals(vitals)
+        + submitFeedback(rating, ...)
+    }
+}
+
+' --------- Stores (Zustand) ---------
+package "src/stores" {
+    class useAuthStore <<store>>
+    class useVitalsStore <<store>>
+    class useAlertsStore <<store>>
+    class useThemeStore <<store>>
+    class useAchievementsStore <<store>>
+}
+
+' --------- External boundaries ---------
+package "External" {
+    class SupabaseClient <<external>>
+    class OnnxRuntimeReactNative <<external>>
+    class FCMClient <<external>>
+    class ExpoLocation <<external>>
+    class AssistantAPI <<external>>
+    class AsyncStorage <<external>>
+}
+
+' ============================================================
+' RELATIONSHIPS
+'   *--  Composition (filled diamond)
+'   o--  Aggregation (hollow diamond)
+'   -->  Association (plain arrow)
+' Each arrow carries a descriptive verb label.
+' ============================================================
+
+' --- Composition: AIService owns the Registry; OnnxRuntime owns the native binding ---
+AIService     *--> AIModelRegistry        : owns
+OnnxRuntime   *--> OnnxRuntimeReactNative : wraps
+
+' --- Aggregation: Registry holds many Adapters ---
+AIModelRegistry o--> "*" AIModelAdapter   : registers
+
+' --- Association: AIModelAdapter references its type definitions ---
+AIModelAdapter --> ModelType        : has type
+AIModelAdapter --> ModelStatus      : has status
+AIModelAdapter --> ModelPrediction  : returns
+
+' --- Association: concrete adapters and simulators conform to the interface ---
+FallDetectionAdapter   --> AIModelAdapter : implements
+FallDetectionSimulator --> AIModelAdapter : implements
+HARAdapter             --> AIModelAdapter : implements
+HARSimulator           --> AIModelAdapter : implements
+CardiacAdapter         --> AIModelAdapter : implements
+CardiacSimulator       --> AIModelAdapter : implements
+
+' --- Association: AIService uses other services ---
+AIService --> AlertService        : files alerts via
+AIService --> NotificationService : notifies caregivers via
+
+' --- Association: adapters use OnnxRuntime ---
+FallDetectionAdapter --> OnnxRuntime : runs inference via
+HARAdapter           --> OnnxRuntime : runs inference via
+CardiacAdapter       --> OnnxRuntime : runs inference via
+
+' --- Association: services use external clients ---
+AuthService          --> SupabaseClient : auth & profile RPC
+AlertService         --> SupabaseClient : CRUD alerts
+LinkService          --> SupabaseClient : CRUD links
+LocationService      --> SupabaseClient : writes locations
+LocationService      --> ExpoLocation   : reads GPS via
+GeofenceService      --> SupabaseClient : CRUD geofences
+NotificationService  --> FCMClient      : sends push via
+NotificationService  --> SupabaseClient : reads tokens
+OfflineQueueService  --> SupabaseClient : flushes queue to
+OfflineQueueService  --> AsyncStorage   : queues writes to
+MockVitalsService    --> SupabaseClient : writes vitals
+AchievementService   --> SupabaseClient : CRUD achievements
+
+' --- Association: assistant client to remote API ---
+AssistantClient --> AssistantAPI : HTTP chat
+
+' --- Association: services to stores ---
+AuthService         --> useAuthStore         : updates
+AlertService        --> useAlertsStore       : updates
+MockVitalsService   --> useVitalsStore       : updates
+AchievementService  --> useAchievementsStore : updates
+
+' --- Association: useThemeStore persists itself ---
+useThemeStore       --> AsyncStorage         : persists to
+
+@enduml
