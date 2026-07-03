@@ -1,0 +1,7 @@
+# HAR training pipeline dependencies.
+# Tested with Python 3.13. Install:  pip install -r requirements.txt
+tensorflow>=2.16
+numpy>=1.26
+pandas>=2.0
+scikit-learn>=1.3
+scipy>=1.11

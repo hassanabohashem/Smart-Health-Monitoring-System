@@ -1,0 +1,73 @@
+{
+  "description": "WISDM watch HAR dual-head 1D-CNN. Input is a raw IMU window in physical units; normalization is baked in. Two outputs: 4-way activity softmax + binary real-vs-junk detector.",
+  "input": {
+    "shape": [
+      1,
+      200,
+      6
+    ],
+    "dtype": "float32",
+    "sample_rate_hz": 20,
+    "window_samples": 200,
+    "window_seconds": 10.0,
+    "channels": [
+      "ax",
+      "ay",
+      "az",
+      "gx",
+      "gy",
+      "gz"
+    ],
+    "channel_units": {
+      "accel": "m/s^2 (incl. gravity)",
+      "gyro": "rad/s"
+    },
+    "note": "Feed 20 Hz samples (downsample the watch's 50 Hz imuHighRate to 20 Hz). Channel order fixed: ax,ay,az,gx,gy,gz."
+  },
+  "outputs": {
+    "probs": {
+      "shape": [
+        1,
+        4
+      ],
+      "type": "softmax",
+      "class_names": [
+        "walking",
+        "jogging",
+        "stairs",
+        "stationary"
+      ]
+    },
+    "is_real": {
+      "shape": [
+        1,
+        1
+      ],
+      "type": "sigmoid",
+      "meaning": "P(real tracked activity). Reject as junk/fake movement if < tau."
+    }
+  },
+  "inference": {
+    "is_real_threshold_tau": 0.8,
+    "rule": "If is_real < tau -> reject (no confident activity). Else activity = argmax(probs)."
+  },
+  "metrics": {
+    "test_subjects": [
+      1602,
+      1605,
+      1610,
+      1612,
+      1620,
+      1636,
+      1637,
+      1638,
+      1643,
+      1650
+    ],
+    "classification_accuracy": 0.9442,
+    "segment_voted_accuracy": 0.9592,
+    "fake_movement_rejection_rate": 0.8925,
+    "real_activity_coverage": 0.7473,
+    "accuracy_on_accepted": 0.947
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "description": "Per-placement decision thresholds tuned on the FallAllD fused test set (7-channel FusionNet). Selection criterion: maximise F1 subject to Recall >= 75%.",
+  "recall_floor": 0.75,
+  "thresholds": {
+    "waist": 0.56,
+    "wrist": 0.28,
+    "neck": 0.33
+  }
+}
