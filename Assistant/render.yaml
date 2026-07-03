@@ -1,0 +1,31 @@
+# Render deployment spec. Commit this file, then on render.com:
+#   1. New → Blueprint → connect your GitHub repo
+#   2. Render reads this file and creates the service
+#   3. Set the env vars (marked sync: false below) in the dashboard
+#
+# Free tier notes:
+# - 512MB RAM, which is TIGHT for sentence-transformers + torch.
+#   If you OOM, move to the $7/mo Starter tier (1GB RAM).
+# - Free services spin down after 15min of inactivity and take ~30s to wake.
+#   Fine for a demo; for live use upgrade to Starter.
+
+services:
+  - type: web
+    name: smarthealth-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter        # change to 'free' if you want zero cost
+    region: frankfurt    # pick the one closest to your users
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: SMARTHEALTH_AUTH_REQUIRED
+        value: "true"
+      - key: GROQ_API_KEY
+        sync: false      # set in Render dashboard (secret)
+      - key: SMARTHEALTH_API_KEY
+        sync: false      # set in Render dashboard (secret)
+      # Optional overrides:
+      # - key: SMARTHEALTH_LLM_MODEL
+      #   value: llama-3.3-70b-versatile

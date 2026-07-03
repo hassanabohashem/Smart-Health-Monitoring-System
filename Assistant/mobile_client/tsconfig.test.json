@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": ".compiled",
+    "lib": ["ES2020", "DOM"],
+    "types": ["node"]
+  },
+  "include": ["client.ts", "types.ts", "e2e_test.ts"]
+}

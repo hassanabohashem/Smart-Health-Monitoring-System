@@ -1,0 +1,3 @@
+M:\GradProject\ECG_DEV\MIT-BIH\Trial_3\output\checkpoints\v2_cincaug_full_seed42.pt
+M:\GradProject\ECG_DEV\MIT-BIH\Trial_3\output\checkpoints\v2_cincaug_full_seed101.pt
+M:\GradProject\ECG_DEV\MIT-BIH\Trial_3\output\checkpoints\v2_cincaug_full_seed202.pt

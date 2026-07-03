@@ -1,0 +1,108 @@
+# Production requirements — just what api.py + core/ need at runtime.
+# Streamlit and its deps are in requirements-dev.txt.
+
+# Web framework
+fastapi==0.136.0
+uvicorn==0.44.0
+starlette==1.0.0
+httptools==0.7.1
+watchfiles==1.1.1
+websockets==16.0
+
+# HTTP + async
+anyio==4.13.0
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+httpx-sse==0.4.3
+idna==3.11
+sniffio==1.3.1
+
+# Groq client
+groq==1.1.2
+distro==1.9.0
+
+# Pydantic
+pydantic==2.13.2
+pydantic-core==2.46.2
+pydantic-settings==2.13.1
+annotated-types==0.7.0
+typing-inspection==0.4.2
+typing_extensions==4.15.0
+
+# Env
+python-dotenv==1.2.2
+
+# JSON / serialization
+orjson==3.11.8
+PyYAML==6.0.3
+
+# LangChain (RAG)
+langchain-classic==1.0.4
+langchain-community==0.4.1
+langchain-core==1.2.31
+langchain-text-splitters==1.1.2
+langsmith==0.7.32
+dataclasses-json==0.6.7
+marshmallow==3.26.2
+typing-inspect==0.9.0
+mypy_extensions==1.1.0
+jsonpatch==1.33
+jsonpointer==3.1.1
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+referencing==0.37.0
+rpds-py==0.30.0
+attrs==26.1.0
+tenacity==9.1.4
+SQLAlchemy==2.0.49
+greenlet==3.4.0
+
+# RAG: embeddings + vector store
+# torch is installed separately in Dockerfile from the CPU-only index to
+# avoid pulling ~700MB of CUDA wheels we can't use on Render/Fly free tier.
+sentence-transformers==5.4.1
+transformers==5.5.4
+tokenizers==0.22.2
+huggingface_hub==1.11.0
+safetensors==0.7.0
+hf-xet==1.4.3
+regex==2026.4.4
+faiss-cpu==1.13.2
+
+# PDF support
+pypdf==6.10.2
+
+# Common deps pulled in transitively
+numpy==2.4.4
+scipy==1.17.1
+scikit-learn==1.8.0
+joblib==1.5.3
+threadpoolctl==3.6.0
+filelock==3.28.0
+fsspec==2026.3.0
+networkx==3.6.1
+sympy==1.14.0
+mpmath==1.3.0
+pillow==12.2.0
+tqdm==4.67.3
+packaging==26.1
+certifi==2026.2.25
+charset-normalizer==3.4.7
+urllib3==2.6.3
+requests==2.33.1
+requests-toolbelt==1.0.0
+aiohttp==3.13.5
+aiohappyeyeballs==2.6.1
+aiosignal==1.4.0
+frozenlist==1.8.0
+multidict==6.7.1
+propcache==0.4.1
+yarl==1.23.0
+click==8.3.2
+uuid_utils==0.14.1
+zstandard==0.25.0
+xxhash==3.6.0
+
+# Arabic / misc
+colorama==0.4.6
